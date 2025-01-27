@@ -1,2 +1,2 @@
 # 0ff.shor3-web-shell
-A simple yet effective PHP web shell
+Fair Use disclaimer: for educational purposes only.
