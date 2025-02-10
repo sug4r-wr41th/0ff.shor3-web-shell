@@ -239,7 +239,7 @@ if ($cwd)
 		<?php
 		foreach ($files as &$f)
 		{
-			$perms = fileperms('/etc/passwd');
+			$perms = fileperms($f);
 
 			switch ($perms & 0xF000) {
 					case 0xC000:
