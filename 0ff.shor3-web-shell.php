@@ -199,6 +199,14 @@ echo( sprintf("
 	<label for="exec">Command:</label>
 	<input type="text" id="exec" name="exec" placeholder="ls -ls">
 	<input type="submit" value="Execute">
+	<?php
+	$functions = explode(",", ini_get("disable_functions"));
+
+	foreach ($functions as &$f)
+	{
+		if ($f == "exec") { echo( "<b>Warning:</b> exec function is disabled, so the 'Execute' feature do not work." ); break; }
+	}
+	?>
 </form>
 
 <textarea rows="4" cols="64"><?php
